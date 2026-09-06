@@ -66,10 +66,11 @@ Panel {
   // starts out matching the rest of the desktop rather than a hardcoded
   // convention. Clicking the grid's "W" heading writes the choice back to
   // shell.json.
-  readonly property int weekStart: Model.normalizedWeekStart(setting("weekStartDay", null), Qt.locale().firstDayOfWeek)
-  readonly property string nextWeekStartLabel: Qt.locale().dayName(Model.toggledWeekStart(weekStart), Locale.LongFormat)
+  readonly property int weekStart: Model.normalizedWeekStart(setting("weekStartDay", null), labelLocale.firstDayOfWeek)
+  readonly property string nextWeekStartLabel: labelLocale.dayName(Model.toggledWeekStart(weekStart), Locale.LongFormat)
   readonly property var weekdays: Model.weekdayOrder(weekStart)
   readonly property var weeks: Model.monthGrid(viewYear, viewMonth, weekStart, todayKey)
+  readonly property var labelLocale: Qt.locale("pt_BR")
 
   // Caldir is the only component that reads the local ICS store. Keeping the
   // QML side on a small JSON contract avoids reimplementing recurrence and
@@ -802,7 +803,7 @@ Panel {
   function lastPullLabel() {
     if (lastCalendarPull === "") return "Not pulled from Google yet"
     var date = new Date(lastCalendarPull)
-    return isNaN(date.getTime()) ? "Pulled from Google" : "Last pull: " + Qt.formatDateTime(date, "d MMM, HH:mm")
+    return isNaN(date.getTime()) ? "Pulled from Google" : "Last pull: " + root.labelLocale.toString(date, "d MMM, HH:mm")
   }
 
   function prefetchStartDate() {
@@ -825,7 +826,7 @@ Panel {
   function prefetchRangeLabel() {
     var start = new Date(prefetchStartDate() + "T12:00:00")
     var end = new Date(prefetchEndDate() + "T12:00:00")
-    return Qt.formatDate(start, "MMM yyyy") + "–" + Qt.formatDate(end, "MMM yyyy")
+    return root.labelLocale.toString(start, "MMM yyyy") + "–" + root.labelLocale.toString(end, "MMM yyyy")
   }
 
   // When browsing reaches the last two cached months, fetch another window
@@ -1042,10 +1043,15 @@ Panel {
     setWeekStart(Model.toggledWeekStart(root.weekStart))
   }
 
+  function capitalize(s) {
+    if (!s) return s
+    return s.charAt(0).toUpperCase() + s.slice(1)
+  }
+
   // Locale short day names, trimmed of the trailing period some locales
-  // carry ("man." -> "MAN") so the header row stays a clean band of caps.
+  // carry ("man." -> "Man") so the header row stays clean.
   function weekdayLabel(weekday) {
-    return String(Qt.locale().dayName(weekday, Locale.ShortFormat)).replace(/\.$/, "").toUpperCase()
+    return root.capitalize(String(labelLocale.dayName(weekday, Locale.ShortFormat)).replace(/\.$/, ""))
   }
 
   SystemClock {
@@ -1472,7 +1478,7 @@ Panel {
               Text {
                 id: heroDate
                 anchors.verticalCenter: parent.verticalCenter
-                text: Qt.formatDate(root.today, "MMMM d")
+                text: root.capitalize(root.labelLocale.toString(root.today, "MMMM d"))
                 color: heroMouse.containsMouse
                   ? Style.hoverStateColor(root.contentForeground, Color.accent)
                   : root.contentForeground
@@ -1921,7 +1927,7 @@ Panel {
                 // "MAY 2026" and a "SEPTEMBER 2026".
                 width: Style.space(130)
                 horizontalAlignment: Text.AlignHCenter
-                text: Qt.formatDate(root.viewDate, "MMMM yyyy").toUpperCase()
+                text: root.capitalize(root.labelLocale.toString(root.viewDate, "MMMM yyyy"))
                 color: Qt.darker(root.contentForeground, 1.4)
                 font.family: root.contentFontFamily
                 font.pixelSize: Style.font.body
@@ -1981,7 +1987,7 @@ Panel {
                 id: agendaLabel
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                text: Qt.formatDate(new Date(root.agendaDateKey + "T12:00:00"), "dddd, MMMM d").toUpperCase()
+                text: root.capitalize(root.labelLocale.toString(new Date(root.agendaDateKey + "T12:00:00"), "dddd, MMMM d"))
                 color: Qt.darker(root.contentForeground, 1.5)
                 font.family: root.contentFontFamily
                 font.pixelSize: Style.font.bodySmall
@@ -2634,7 +2640,7 @@ Panel {
               wrapMode: Text.Wrap
               text: root.nextMoonPhase
                 ? "Lunar phase: " + root.nextMoonPhase.title + " — "
-                  + Qt.formatDate(new Date(root.nextMoonPhase.start + "T12:00:00"), "d MMM")
+                  + root.labelLocale.toString(new Date(root.nextMoonPhase.start + "T12:00:00"), "d MMM")
                 : ""
               color: Qt.darker(root.contentForeground, 1.45)
               font.family: root.contentFontFamily

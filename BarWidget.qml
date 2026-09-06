@@ -52,8 +52,13 @@ BarWidget {
       root.bar.shell.updateEntryInline(root.moduleName, entry)
   }
 
+  function capitalize(s) {
+    if (!s) return s
+    return s.charAt(0).toUpperCase() + s.slice(1)
+  }
+
   function formatted(date) {
-    return Qt.formatDateTime(date, activeFormat.replace(/ww/g, Model.isoWeekLiteral(date.getFullYear(), date.getMonth(), date.getDate())))
+    return root.capitalize(Qt.locale("pt_BR").toString(date, activeFormat.replace(/ww/g, Model.isoWeekLiteral(date.getFullYear(), date.getMonth(), date.getDate()))))
   }
 
   // ---- Calendar popup. Shape contract for shell.summon/hide/toggle

@@ -79,7 +79,7 @@ patch, and reproducible release workflow are kept in this repository.
 Add and enable the plugin with Omarchy:
 
 ```bash
-omarchy plugin add https://github.com/guiestrela/omarchy-google-calendar-clock-refresh --enable
+omarchy plugin add https://github.com/adrianoaraujods/omarchy-google-calendar-clock-refresh --enable
 ```
 
 If an older installation is still present, remove it first with
